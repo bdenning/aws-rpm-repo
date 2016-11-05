@@ -1,0 +1,40 @@
+Resources:
+  AcmeCorp:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: "PublicRead"
+      WebsiteConfiguration: 
+        IndexDocument: "index.html"
+        ErrorDocument: "error.html"
+      
+  AcmeCorpPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties: 
+      Bucket:
+        Ref: "AcmeCorp"
+      PolicyDocument:
+        Statement:
+          -
+            Sid: "IPDeny"
+            Effect: "Deny"
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              Fn::Join: 
+                - ""
+                - 
+                  - "arn:aws:s3:::"
+                  - 
+                    Ref: "AcmeCorp"
+                  - "/*"
+            Condition:
+              NotIpAddress:
+                aws:SourceIp: "35.160.115.7/32"
+
+Outputs:
+  RepoConfig:
+    Value:
+      Fn::GetAtt:
+        - "AcmeCorp"
+        - "WebsiteURL"
+    Description: "Repository URL"
